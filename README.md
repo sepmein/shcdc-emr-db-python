@@ -1,67 +1,100 @@
-# SHCDC EMR Database Package
+# EMR数据分析平台
 
-A Python package for managing Electronic Medical Record (EMR) database operations using SQLAlchemy.
+一个精美的数据分析仪表板，用于可视化和分析EMR（电子病历）患者信息、医嘱处方项和检验项目数据。
 
-## Features
+## 功能特点
 
-- Database connection management with SQLAlchemy
-- Query execution with standardized error handling
-- EMR-specific database operations
-- Database metadata generation
-- Legacy support functions
+- 👤 患者信息质量分析：支持对基本患者信息的数据质量评估和优化
+- 🔄 多数据类型：支持医嘱处方项和检验项目数据的统一分析
+- 🔍 数据概览：使用统计数据和图表展示数据完整性和分布
+- 🧩 标签式界面：使用标签页组织功能，减少界面复杂度
+- 📊 可视化图表：使用饼图和柱状图直观展示数据关系
+- 🏢 机构分析：按组织机构分析数据质量和缺失的数据项
+- 🔎 数据探索：提供灵活的查询界面，支持自定义SQL查询
+- 📥 数据下载：支持导出查询结果为CSV文件
 
-## Installation
+## 安装说明
+
+### 前提条件
+
+- Python 3.8或更高版本
+- PostgreSQL数据库
+
+### 安装步骤
+
+1. 克隆代码库
+
+```bash
+git clone [repository-url]
+cd emr-analysis-dashboard
+```
+
+2. 创建并激活虚拟环境（可选）
+
+```bash
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
+```
+
+3. 安装依赖项
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+4. 配置数据库连接
 
-```python
-from shcdc_emr_db import DatabaseManager, QueryExecutor, EMRRecordManager
-
-# Initialize database manager
-db_manager = DatabaseManager()
-
-# Create query executor
-query_executor = QueryExecutor(db_manager)
-
-# Create EMR record manager
-emr_manager = EMRRecordManager(query_executor)
-
-# Fetch patient records
-records = emr_manager.fetch_patient_emr_records(patient_id="123", limit=10)
-```
-
-## Configuration
-
-Create a `config/database.ini` file with the following structure:
+应用程序使用`config/database.ini`文件进行数据库连接配置。请确保该文件包含正确的数据库连接信息：
 
 ```ini
 [postgresql]
-host = your_host
-port = your_port
-database = your_database
-user = your_user
-password = your_password
+host=localhost
+port=5432
+database=emr
+user=postgres
+password=your_password
 ```
 
-## Development
+## 使用说明
 
-To set up the development environment:
+运行Streamlit应用：
 
-1. Clone the repository
-2. Create a virtual environment
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Install the package in development mode:
-   ```bash
-   pip install -e .
-   ```
+```bash
+streamlit run app_integrated.py
+```
 
-## License
+应用将在您的浏览器中打开（通常是http://localhost:8501）。
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 应用结构
+
+应用采用了两级导航结构：
+
+1. **应用模式选择**：在顶部选择"患者信息质量"或"医嘱与检验分析"模式
+2. **功能导航**：选择需要使用的分析功能
+
+### 患者信息质量分析功能
+
+- **总体统计**：显示必填字段和建议字段的整体完整率，提供综合质量评分
+- **必填字段分析**：按机构分析必填字段完整情况，提供图表和详细数据视图
+- **建议字段分析**：按机构分析建议字段填写情况，重点关注性别、出生日期等关键字段
+
+### 医嘱与检验分析功能
+
+1. **数据概览**：显示关键指标和数据分布饼图，使用标签页组织不同视图
+2. **数据探索**：提供三种查询模式（孤立数据、缺失数据、自定义查询）
+3. **按机构统计**：提供图表分析和详细数据两种视图，展示各机构缺失数据情况
+
+## 数据安全
+
+请注意，此应用直接连接到您的数据库。确保：
+
+- 使用具有适当权限的数据库用户
+- 不要在公共网络暴露此应用
+- 遵循您组织的数据安全政策
+
+## 许可证
+
+[根据实际情况填写]

@@ -173,3 +173,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 config/database.ini
+docs/附件2.国家传染病智能监测预警前置软件数据集成和API接口规范(试行)-上海个修订版20240830.pdf

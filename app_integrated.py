@@ -125,30 +125,55 @@ def create_chart(df, chart_type, x_col, y_col, title, color_col=None):
 
 # Header with a more modern design - 使用emoji代替外部图像
 header_col1, header_col2 = st.columns([1, 5])
-with header_col1:
-    # 使用大号Emoji替代外部图像
-    st.markdown(
-        "<h1 style='text-align: center; font-size: 52px; margin: 0; padding: 0;'>📊</h1>",
-        unsafe_allow_html=True,
-    )
 with header_col2:
-    st.title("EMR数据分析平台")
+    st.title("📊EMR数据质量核查")
     st.markdown(
-        "<p style='font-size: 1.1em; color: #666;'>一站式电子病历数据分析工具，助力医疗数据质量管理</p>",
+        "<p style='font-size: 1.1em; color: #666;'>EMR数据质量、表单关联性分析</p>",
         unsafe_allow_html=True,
     )
 
-# 主导航菜单
-app_mode = st.radio(
-    "选择应用模式:",
-    ["患者信息质量", "医嘱与检验分析"],
-    format_func=lambda x: f"👤 {x}" if x == "患者信息质量" else f"💊 {x}",
-    horizontal=True,
-)
+# Define data types
+DATA_TYPES = {
+    "患者信息质量": {"icon": "👤", "type": "patient_info"},
+    "医嘱处方项": {
+        "item_table": "emr_back.emr_order_item",
+        "parent_table": "emr_back.emr_order",
+        "join_field": "order_id",
+        "icon": "💊",
+        "type": "item_analysis",
+    },
+    "检验项目": {
+        "item_table": "emr_back.emr_ex_lab_item",
+        "parent_table": "emr_back.emr_ex_lab",
+        "join_field": "ex_lab_id",
+        "icon": "🧪",
+        "type": "item_analysis",
+    },
+    "临床检验项目": {
+        "item_table": "emr_back.emr_ex_clinical_item",
+        "parent_table": "emr_back.emr_ex_clinical",
+        "join_field": "ex_clinical_id",
+        "icon": "🩺",
+        "type": "item_analysis",
+    },
+}
+
+# 使用原生Streamlit侧边栏组件
+with st.sidebar:
+    st.markdown("### 📊 数据类型选择")
+    data_type = st.radio(
+        "选择要分析的数据:",
+        list(DATA_TYPES.keys()),
+        format_func=lambda x: f"{DATA_TYPES[x]['icon']} {x}",
+    )
+
+# Get current data type configuration
+current_config = DATA_TYPES[data_type]
+data_icon = current_config["icon"]
 
 # 患者信息质量分析模式
-if app_mode == "患者信息质量":
-    st.markdown("## 👤 患者基本信息数据质量分析")
+if current_config["type"] == "patient_info":
+    st.markdown(f"## {data_icon} {data_type}")
 
     # 使用标签页组织内容
     quality_tab1, quality_tab2, quality_tab3 = st.tabs(
@@ -325,33 +350,18 @@ if app_mode == "患者信息质量":
                         "必填字段完整率"
                     ).head(10)
 
-                    chart_col1, chart_col2 = st.columns(2)
-
-                    with chart_col1:
-                        st.subheader("必填字段完整率最高的医疗机构")
-                        fig = px.bar(
-                            top_orgs,
-                            x="医疗机构名称",
-                            y="必填字段完整率",
-                            title="必填字段完整率最高的医疗机构",
-                            color="必填字段完整率",
-                            color_continuous_scale="Viridis",
-                        )
-                        fig.update_layout(xaxis_tickangle=-45)
-                        st.plotly_chart(fig, use_container_width=True)
-
-                    with chart_col2:
-                        st.subheader("必填字段完整率最低的医疗机构")
-                        fig = px.bar(
-                            sorted_by_completeness,
-                            x="医疗机构名称",
-                            y="必填字段完整率",
-                            title="必填字段完整率最低的医疗机构",
-                            color="必填字段完整率",
-                            color_continuous_scale="Viridis_r",
-                        )
-                        fig.update_layout(xaxis_tickangle=-45)
-                        st.plotly_chart(fig, use_container_width=True)
+                    # 不再使用两列布局，只显示一个图表
+                    st.subheader("必填字段完整率最高的医疗机构")
+                    fig = px.bar(
+                        top_orgs,
+                        x="医疗机构名称",
+                        y="必填字段完整率",
+                        title="必填字段完整率最高的医疗机构",
+                        color="必填字段完整率",
+                        color_continuous_scale="Viridis",
+                    )
+                    fig.update_layout(xaxis_tickangle=-45)
+                    st.plotly_chart(fig, use_container_width=True)
 
                     # 散点图：记录总数与必填字段完整率的关系
                     st.subheader("记录总数与必填字段完整率的关系")
@@ -616,43 +626,10 @@ if app_mode == "患者信息质量":
                 st.error("无法获取机构建议字段统计数据")
 
 else:  # 医嘱与检验分析模式
-    # Define data types
-    DATA_TYPES = {
-        "医嘱处方项": {
-            "item_table": "emr_back.emr_order_item",
-            "parent_table": "emr_back.emr_order",
-            "join_field": "order_id",
-            "icon": "💊",
-        },
-        "检验项目": {
-            "item_table": "emr_back.emr_ex_lab_item",
-            "parent_table": "emr_back.emr_ex_lab",
-            "join_field": "ex_lab_id",
-            "icon": "🧪",
-        },
-        "临床检验项目": {
-            "item_table": "emr_back.emr_ex_clinical_item",
-            "parent_table": "emr_back.emr_ex_clinical",
-            "join_field": "ex_clinical_id",
-            "icon": "🩺",
-        },
-    }
-
-    # 使用原生Streamlit侧边栏组件
-    with st.sidebar:
-        st.markdown("### 📊 数据类型选择")
-        data_type = st.radio(
-            "选择要分析的数据:",
-            list(DATA_TYPES.keys()),
-            format_func=lambda x: f"{DATA_TYPES[x]['icon']} {x}",
-        )
-
-    # Get current data type configuration
-    current_config = DATA_TYPES[data_type]
+    # Get item type configuration
     item_table = current_config["item_table"]
     parent_table = current_config["parent_table"]
     join_field = current_config["join_field"]
-    data_icon = current_config["icon"]
 
     # 根据数据类型设置父表名称
     if data_type == "医嘱处方项":

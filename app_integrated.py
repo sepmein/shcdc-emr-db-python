@@ -490,38 +490,23 @@ if current_config["type"] == "patient_info":
                     # 只展示前10个机构的建议字段完整率
                     top_orgs = suggested_org_df.head(10)
 
-                    # 计算按完整率排序的数据
+                    # 计算按完整率排序的数据但不再显示
                     sorted_by_completeness = suggested_org_df.sort_values(
                         "建议字段完整率"
                     ).head(10)
 
-                    chart_col1, chart_col2 = st.columns(2)
-
-                    with chart_col1:
-                        st.subheader("建议字段完整率最高的医疗机构")
-                        fig = px.bar(
-                            top_orgs,
-                            x="医疗机构名称",
-                            y="建议字段完整率",
-                            title="建议字段完整率最高的医疗机构",
-                            color="建议字段完整率",
-                            color_continuous_scale="Viridis",
-                        )
-                        fig.update_layout(xaxis_tickangle=-45)
-                        st.plotly_chart(fig, use_container_width=True)
-
-                    with chart_col2:
-                        st.subheader("建议字段完整率最低的医疗机构")
-                        fig = px.bar(
-                            sorted_by_completeness,
-                            x="医疗机构名称",
-                            y="建议字段完整率",
-                            title="建议字段完整率最低的医疗机构",
-                            color="建议字段完整率",
-                            color_continuous_scale="Viridis_r",
-                        )
-                        fig.update_layout(xaxis_tickangle=-45)
-                        st.plotly_chart(fig, use_container_width=True)
+                    # 不再使用两列布局，只显示一个图表
+                    st.subheader("建议字段完整率最高的医疗机构")
+                    fig = px.bar(
+                        top_orgs,
+                        x="医疗机构名称",
+                        y="建议字段完整率",
+                        title="建议字段完整率最高的医疗机构",
+                        color="建议字段完整率",
+                        color_continuous_scale="Viridis",
+                    )
+                    fig.update_layout(xaxis_tickangle=-45)
+                    st.plotly_chart(fig, use_container_width=True)
 
                     # 核心指标对比图
                     st.subheader("核心建议字段缺失率对比")
